@@ -43,13 +43,13 @@ public class VendorController {
 
     @PatchMapping("/api/v1/vendors/{id}")
     public Mono<Vendor> update(@PathVariable String id, @RequestBody Vendor vendor) {
-        Vendor vendorToUpdate = vendorRepository.findById(id).block();
-
         if (vendor.getName() != null) {
-            vendorToUpdate.setName(vendor.getName());
-            return vendorRepository.save(vendorToUpdate);
+            return vendorRepository.findById(id).flatMap(vendorToUpdate -> {
+                vendorToUpdate.setName(vendor.getName());
+                return vendorRepository.save(vendorToUpdate);
+            });
         }
 
-        return Mono.just(vendorToUpdate);
+        return vendorRepository.findById(id);
     }
 }

@@ -43,13 +43,13 @@ public class CategoryController {
 
     @PatchMapping("/api/v1/categories/{id}")
     public Mono<Category> update(@PathVariable String id, @RequestBody Category category) {
-        Category categoryToUpdate = categoryRepository.findById(id).block();
-
         if (category.getDescription() != null) {
-            categoryToUpdate.setDescription(category.getDescription());
-            return categoryRepository.save(categoryToUpdate);
+            return categoryRepository.findById(id).flatMap(categoryToUpdate -> {
+                categoryToUpdate.setDescription(category.getDescription());
+                return categoryRepository.save(categoryToUpdate);
+            });
         }
 
-        return Mono.just(categoryToUpdate);
+        return categoryRepository.findById(id);
     }
 }
